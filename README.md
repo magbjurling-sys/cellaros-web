@@ -1,6 +1,7 @@
 # cellaros-web
 
-Offentlig hjemmeside for **Vinskapet** (norsk forbrukerprodukt) / **CellarOS** (plattform).
+Offentlig hjemmeside for **CellarOS** — operativsystem for vinskap og private vinsamlinger.
+Det norske produktnavnet er **Vinskapet**.
 Serveres på [cellaros.no](https://cellaros.no) via GitHub Pages.
 
 Dette repoet inneholder **bare** den offentlige siden. Produktkode, spekk og
