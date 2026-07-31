@@ -87,7 +87,9 @@ img,svg{max-width:100%}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 
-.shell{width:100%;max-width:var(--shell);margin-inline:auto;padding-inline:24px}
+.shell{width:100%;max-width:var(--shell);margin-inline:auto;
+  padding-left:max(24px,env(safe-area-inset-left));
+  padding-right:max(24px,env(safe-area-inset-right))}
 .eyebrow{
   font-size:.71rem;font-weight:600;letter-spacing:.17em;text-transform:uppercase;
   color:var(--accent);
@@ -104,23 +106,35 @@ p{text-wrap:pretty}
 .top{
   position:sticky;top:0;z-index:50;
   background:color-mix(in srgb,var(--surface-page) 86%,transparent);
-  backdrop-filter:blur(14px);border-bottom:1px solid var(--border-1);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border-1);
 }
 .top-in{display:flex;align-items:center;gap:28px;height:66px}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:0 0 auto}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:0 0 auto;padding-block:10px}
 .brand-mark{width:26px;height:26px;flex:0 0 auto}
 .wm{display:flex;align-items:baseline;gap:0;line-height:1}
 .wm-s{font-family:var(--serif);font-size:1.32rem;letter-spacing:.01em}
 .wm-n{font-family:var(--sans);font-size:.95rem;font-weight:500;letter-spacing:.005em}
 .nav{display:flex;gap:26px;margin-left:auto;align-items:center}
-.nav a{font-size:.9rem;color:var(--text-muted);text-decoration:none}
+.nav a{font-size:.9rem;color:var(--text-muted);text-decoration:none;padding-block:12px}
 .nav a:hover{color:var(--text-body)}
 .theme-btn{
   background:transparent;border:1px solid var(--border-1);color:var(--text-muted);
-  border-radius:999px;height:32px;padding:0 13px;font:inherit;font-size:.82rem;cursor:pointer;
+  border-radius:999px;height:40px;padding:0 15px;font:inherit;font-size:.82rem;cursor:pointer;
 }
 .theme-btn:hover{border-color:var(--border-2);color:var(--text-body)}
-@media (max-width:860px){.nav a{display:none}}
+.lang{display:flex;border:1px solid var(--border-1);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.lang button{
+  background:transparent;border:0;color:var(--text-faint);font:inherit;font-size:.78rem;
+  font-weight:600;letter-spacing:.05em;height:40px;padding:0 12px;cursor:pointer;
+  transition:background .18s ease,color .18s ease;
+}
+.lang button:hover{color:var(--text-body)}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+/* nettbrett i staaende format har plass til navigasjon - bare strammere */
+@media (max-width:1000px){.nav{gap:17px}.nav a{font-size:.85rem}}
+@media (max-width:820px){.nav{gap:13px}.nav a{font-size:.82rem}}
+@media (max-width:700px){.nav a{display:none}.nav{gap:8px}}
 
 .btn{
   display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 22px;
@@ -361,11 +375,15 @@ section{padding-block:clamp(64px,8vw,112px)}
       <span class="wm"><span class="wm-s">CellarOS</span></span>
     </a>
     <nav class="nav">
-      <a href="#flasken">Flasken</a>
-      <a href="#samlingen">Samlingen</a>
-      <a href="#verdien">Verdien</a>
-      <a href="#skapet">Skapet</a>
-      <a href="#produsenter">For produsenter</a>
+      <a href="#flasken" data-en="The bottle">Flasken</a>
+      <a href="#samlingen" data-en="The collection">Samlingen</a>
+      <a href="#verdien" data-en="Value">Verdien</a>
+      <a href="#skapet" data-en="The cabinet">Skapet</a>
+      <a href="#produsenter" data-en="For manufacturers">For produsenter</a>
+      <div class="lang" role="group" aria-label="Språk / Language">
+        <button type="button" data-lang="no" aria-pressed="true">NO</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
       <button class="theme-btn" id="theme" type="button" aria-label="Bytt mellom lys og mørk visning">Lys visning</button>
     </nav>
   </div>
@@ -376,18 +394,18 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section class="hero">
   <div class="shell hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow">CellarOS · operativsystem for vinskap</span>
-      <h1>Vinskapet ditt, <span class="serif-em">slik det faktisk er</span>.</h1>
-      <p class="lede">
+      <span class="eyebrow" data-en="CellarOS · wine cabinet operating system">CellarOS · operativsystem for vinskap</span>
+      <h1 data-en="Your cellar, &lt;span class=&quot;serif-em&quot;&gt;as it actually is&lt;/span&gt;.">Vinskapet ditt, <span class="serif-em">slik det faktisk er</span>.</h1>
+      <p class="lede" data-en="Most wine apps know what you own. CellarOS knows which &lt;em&gt;bottle&lt;/em&gt; — where it lies, who gave it to you, how it has been kept, and what happened the night you opened it.">
         De fleste vinapper vet hva du eier. Vinskapet vet hvilken <em>flaske</em> —
         hvor den ligger, hvem du fikk den av, hvordan den har hatt det, og hva som
         skjedde den kvelden dere åpnet den.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#founders">Bli med i Founders Cellars</a>
-        <a class="btn btn-ghost" href="#flasken">Se hvordan det virker</a>
+        <a class="btn btn-primary" href="#founders" data-en="Join Founders Cellars">Bli med i Founders Cellars</a>
+        <a class="btn btn-ghost" href="#flasken" data-en="See how it works">Se hvordan det virker</a>
       </div>
-      <p class="hero-note">
+      <p class="hero-note" data-en="In Norway the product is called &lt;strong style=&quot;color:var(--text-muted);font-weight:600&quot;&gt;Vinskapet&lt;/strong&gt;. Concept preview — every figure and bottle on this page is an example.">
         I Norge heter produktet <strong style="color:var(--text-muted);font-weight:600">Vinskapet</strong>.
         Konseptvisning under utvikling — alle tall og flasker på denne siden er eksempler.
       </p>
@@ -395,15 +413,15 @@ section{padding-block:clamp(64px,8vw,112px)}
 
     <div class="panel cellar" aria-hidden="true">
       <div class="cellar-top">
-        <span class="cellar-name">Vinskap · kjøkken</span>
-        <span class="cellar-meta">64 plasser · 12 ledige</span>
+        <span class="cellar-name" data-en="Wine cabinet · kitchen">Vinskap · kjøkken</span>
+        <span class="cellar-meta" data-en="64 slots · 12 free">64 plasser · 12 ledige</span>
       </div>
       <div class="grid" id="grid"></div>
       <div class="cellar-found">
         <span class="found-dot"></span>
         <span class="found-txt">
           <span class="found-name">Lynch-Bages 2010</span>
-          <span class="found-sub">Flaske 3 av 6 · gave fra pappa</span>
+          <span class="found-sub" data-en="Bottle 3 of 6 · a gift from Dad">Flaske 3 av 6 · gave fra pappa</span>
         </span>
         <span class="found-pos">N4-R2-C5</span>
       </div>
@@ -414,12 +432,12 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section class="thesis">
   <div class="shell thesis-grid">
     <div>
-      <span class="eyebrow">Hvorfor dette er noe annet</span>
-      <p class="thesis-lead" style="margin-top:14px">
+      <span class="eyebrow" data-en="Why this is different">Hvorfor dette er noe annet</span>
+      <p class="thesis-lead" style="margin-top:14px" data-en="We don&#x27;t compete on longer lists or prettier 3D. We connect physical truth to personal context.">
         Vi konkurrerer ikke på lengre lister eller penere 3D. Vi kobler
         fysisk sannhet til personlig kontekst.
       </p>
-      <p class="lede" style="margin-top:16px;font-size:.95rem">
+      <p class="lede" style="margin-top:16px;font-size:.95rem" data-en="The wine in your cabinet isn&#x27;t just stock. It&#x27;s evenings still to come, the people who gave it to you, and a promise that it won&#x27;t be forgotten at the back of a shelf. Three things carry the product — they must never be watered down.">
         Vinen i skapet er ikke bare varer. Den er kvelder som skal komme, mennesker
         du fikk den av, og et løfte om at den ikke blir glemt bakerst på hylla.
         Tre ting bærer produktet — de skal aldri vannes ut.
@@ -439,7 +457,7 @@ section{padding-block:clamp(64px,8vw,112px)}
         </svg>
         <div>
           <h3>Cellar Graph</h3>
-          <p>
+          <p data-en="«From Dad» is not a notes field — it is a connection. Bottles link to people, trips, meals and occasions, so the collection can answer questions nobody designed a screen for.">
             «Fra pappa» er ikke et notatfelt — det er en kobling. Flasker henger sammen med
             mennesker, reiser, måltider og anledninger, så samlingen kan svare på spørsmål
             ingen har laget et skjermbilde for.
@@ -457,7 +475,7 @@ section{padding-block:clamp(64px,8vw,112px)}
         </svg>
         <div>
           <h3>Bottle Passport</h3>
-          <p>
+          <p data-en="Every single bottle has its own life: bought, received, placed, moved, reserved, opened. It does not vanish when it is drunk — it moves from inventory into the collection&#x27;s history.">
             Hver enkelt flaske har sitt eget livsløp: kjøpt, mottatt, plassert, flyttet,
             reservert, åpnet. Den forsvinner ikke når den drikkes — den flytter fra
             beholdningen til samlingens historie.
@@ -476,7 +494,7 @@ section{padding-block:clamp(64px,8vw,112px)}
         </svg>
         <div>
           <h3>Zero Administration</h3>
-          <p>
+          <p data-en="The goal is not faster scanning. It is that scanning eventually becomes unnecessary — and that inventory stays true because taking a bottle out properly is easier than forgetting to.">
             Målet er ikke raskere skanning. Målet er at skanningen til slutt blir unødvendig,
             og at beholdningen holder seg sann fordi det er lettere å ta ut en flaske riktig
             enn å glemme det.
@@ -490,18 +508,18 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="flasken">
   <div class="shell split">
     <div class="split-copy">
-      <span class="eyebrow">Flasken</span>
-      <h2>Seks like flasker er seks forskjellige historier</h2>
-      <p>
+      <span class="eyebrow" data-en="The bottle">Flasken</span>
+      <h2 data-en="Six identical bottles are six different stories">Seks like flasker er seks forskjellige historier</h2>
+      <p data-en="Most systems store «Lynch-Bages 2010 × 6». But one was a gift, another you bought yourself at auction in pounds, a third is reserved for a particular dinner — and only one of them sat in the cabinet the week the temperature ran.">
         De fleste systemer lagrer «Lynch-Bages 2010 × 6». Men den ene var en gave, den andre
         kjøpte du selv på auksjon i pund, den tredje står reservert til en bestemt middag —
         og bare én av dem sto i skapet den uka temperaturen løp.
       </p>
-      <p>
+      <p data-en="That is why the bottle is our load-bearing object, not the count. Each bottle has its own cost, its own slot, its own owner and its own history.">
         Derfor er flasken det bærende objektet hos oss, ikke antallet. Hver flaske har sin
         egen kostpris, sin egen plass, sin egen eier og sin egen historie.
       </p>
-      <p style="color:var(--text-body)">
+      <p style="color:var(--text-body)" data-en="&lt;strong&gt;And some bottles are not assets.&lt;/strong&gt; A gift from your father has a market price, but it is irrelevant. The system knows the difference, and will never suggest that you sell it.">
         <strong>Og noen flasker er ikke eiendeler.</strong> En gave fra pappa har en markedspris,
         men den er irrelevant. Systemet vet forskjellen, og foreslår aldri at du selger den.
       </p>
@@ -511,11 +529,11 @@ section{padding-block:clamp(64px,8vw,112px)}
       <div class="pp-head">
         <span class="pp-label" aria-hidden="true"></span>
         <div>
-          <div class="pp-id">Flaske 3 av 6 · 750 ml</div>
+          <div class="pp-id" data-en="Bottle 3 of 6 · 750 ml">Flaske 3 av 6 · 750 ml</div>
           <div class="pp-name">Château Lynch-Bages 2010</div>
           <div class="pp-tags">
-            <span class="tag accent">Gave — ikke til salgs</span>
-            <span class="tag">Eier: Magnus</span>
+            <span class="tag accent" data-en="Gift — not for sale">Gave — ikke til salgs</span>
+            <span class="tag" data-en="Owner: Magnus">Eier: Magnus</span>
             <span class="tag">N4-R2-C5</span>
           </div>
         </div>
@@ -524,47 +542,47 @@ section{padding-block:clamp(64px,8vw,112px)}
         <li>
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">1. APRIL 2018</div>
-            <div class="tl-what"><b>Kjøpt</b> hos Berry Bros — 1&nbsp;199&nbsp;kr</div>
+            <div class="tl-when" data-en="1 APRIL 2018">1. APRIL 2018</div>
+            <div class="tl-what" data-en="&lt;b&gt;Bought&lt;/b&gt; at Berry Bros — NOK&amp;nbsp;1,199"><b>Kjøpt</b> hos Berry Bros — 1&nbsp;199&nbsp;kr</div>
           </div>
         </li>
         <li>
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">24. DESEMBER 2018</div>
-            <div class="tl-what"><b>Mottatt</b> som gave fra pappa</div>
-            <div class="tl-note">«Til noe som er verdt å vente på.»</div>
+            <div class="tl-when" data-en="24 DECEMBER 2018">24. DESEMBER 2018</div>
+            <div class="tl-what" data-en="&lt;b&gt;Received&lt;/b&gt; as a gift from Dad"><b>Mottatt</b> som gave fra pappa</div>
+            <div class="tl-note" data-en="«For something worth waiting for.»">«Til noe som er verdt å vente på.»</div>
           </div>
         </li>
         <li>
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">2. JANUAR 2019</div>
-            <div class="tl-what"><b>Plassert</b> i Vinskap kjøkken · Ø2-R1-C3</div>
+            <div class="tl-when" data-en="2 JANUARY 2019">2. JANUAR 2019</div>
+            <div class="tl-what" data-en="&lt;b&gt;Placed&lt;/b&gt; in Kitchen cabinet · Ø2-R1-C3"><b>Plassert</b> i Vinskap kjøkken · Ø2-R1-C3</div>
           </div>
         </li>
         <li>
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">11. AUGUST 2023</div>
-            <div class="tl-what"><b>Flyttet</b> til N4-R2-C5</div>
-            <div class="tl-note">Samlet med de fem andre flaskene.</div>
+            <div class="tl-when" data-en="11 AUGUST 2023">11. AUGUST 2023</div>
+            <div class="tl-what" data-en="&lt;b&gt;Moved&lt;/b&gt; to N4-R2-C5"><b>Flyttet</b> til N4-R2-C5</div>
+            <div class="tl-note" data-en="Grouped with the other five bottles.">Samlet med de fem andre flaskene.</div>
           </div>
         </li>
         <li>
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">3. JULI 2025</div>
-            <div class="tl-what"><b>Lagringsavvik</b> — 14,4 °C i 38 minutter</div>
-            <div class="tl-note">Kortvarig. Påvirker sikkerheten i drikkevinduet, ikke dommen.</div>
+            <div class="tl-when" data-en="3 JULY 2025">3. JULI 2025</div>
+            <div class="tl-what" data-en="&lt;b&gt;Storage deviation&lt;/b&gt; — 14.4 °C for 38 minutes"><b>Lagringsavvik</b> — 14,4 °C i 38 minutter</div>
+            <div class="tl-note" data-en="Brief. Affects confidence in the drinking window, not the verdict.">Kortvarig. Påvirker sikkerheten i drikkevinduet, ikke dommen.</div>
           </div>
         </li>
         <li class="now">
           <span class="tl-rail"><i></i></span>
           <div>
-            <div class="tl-when">I DAG</div>
-            <div class="tl-what"><b>I form</b> — drikkevindu 2026–2034</div>
-            <div class="tl-note">Antatt toppfase 2028–2031. Middels sikkerhet.</div>
+            <div class="tl-when" data-en="TODAY">I DAG</div>
+            <div class="tl-what" data-en="&lt;b&gt;In form&lt;/b&gt; — drinking window 2026–2034"><b>I form</b> — drikkevindu 2026–2034</div>
+            <div class="tl-note" data-en="Estimated peak 2028–2031. Medium confidence.">Antatt toppfase 2028–2031. Middels sikkerhet.</div>
           </div>
         </li>
       </ol>
@@ -575,51 +593,51 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="samlingen" class="thesis">
   <div class="shell">
     <div class="sec-head">
-      <span class="eyebrow">Samlingen</span>
-      <h2>Ikke en liste. En tilstand.</h2>
-      <p class="lede">
+      <span class="eyebrow" data-en="The collection">Samlingen</span>
+      <h2 data-en="Not a list. A state.">Ikke en liste. En tilstand.</h2>
+      <p class="lede" data-en="The home screen does not show categories — it shows how the collection is doing right now, and what deserves attention before it is too late.">
         Forsiden viser ikke kategorier — den viser hvordan samlingen har det akkurat nå,
         og hva som fortjener oppmerksomhet før det er for sent.
       </p>
     </div>
 
     <div class="tiles">
-      <div class="panel tile"><span class="n">18</span><span class="l">drikkeklare</span><span class="sub">nå, uten reservasjon</span></div>
-      <div class="panel tile"><span class="n">7</span><span class="l">nærmer seg toppen</span><span class="sub">neste 12 måneder</span></div>
-      <div class="panel tile"><span class="n">3</span><span class="l">bør prioriteres</span><span class="sub">på vei ut av vinduet</span></div>
-      <div class="panel tile"><span class="n">42</span><span class="l">utvikler seg</span><span class="sub">ligger og hviler</span></div>
-      <div class="panel tile"><span class="n">5</span><span class="l">uten sikkert vindu</span><span class="sub">mangler data</span></div>
-      <div class="panel tile"><span class="n">12</span><span class="l">ledige plasser</span><span class="sub">av 64</span></div>
+      <div class="panel tile"><span class="n">18</span><span class="l" data-en="ready to drink">drikkeklare</span><span class="sub" data-en="now, unreserved">nå, uten reservasjon</span></div>
+      <div class="panel tile"><span class="n">7</span><span class="l" data-en="approaching peak">nærmer seg toppen</span><span class="sub" data-en="next 12 months">neste 12 måneder</span></div>
+      <div class="panel tile"><span class="n">3</span><span class="l" data-en="should be prioritised">bør prioriteres</span><span class="sub" data-en="leaving the window">på vei ut av vinduet</span></div>
+      <div class="panel tile"><span class="n">42</span><span class="l" data-en="still developing">utvikler seg</span><span class="sub" data-en="resting">ligger og hviler</span></div>
+      <div class="panel tile"><span class="n">5</span><span class="l" data-en="no reliable window">uten sikkert vindu</span><span class="sub" data-en="missing data">mangler data</span></div>
+      <div class="panel tile"><span class="n">12</span><span class="l" data-en="free slots">ledige plasser</span><span class="sub" data-en="of 64">av 64</span></div>
     </div>
 
     <div class="dist" role="table" aria-label="Flasker fordelt på modningsfase">
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-fill"></i> Drikkeklar</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-fill&quot;&gt;&lt;/i&gt; Ready"><i class="mk mk-fill"></i> Drikkeklar</span>
         <span class="bar" style="color:var(--status-drikkeklar)" role="cell"><span style="width:24%"></span></span>
         <span class="dist-val" role="cell">18</span>
       </div>
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-ring"></i> På topp</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-ring&quot;&gt;&lt;/i&gt; At peak"><i class="mk mk-ring"></i> På topp</span>
         <span class="bar" style="color:var(--status-paa-topp)" role="cell"><span style="width:9%"></span></span>
         <span class="dist-val" role="cell">7</span>
       </div>
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-diamond"></i> Prioriter</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-diamond&quot;&gt;&lt;/i&gt; Prioritise"><i class="mk mk-diamond"></i> Prioriter</span>
         <span class="bar" style="color:var(--status-prioriter)" role="cell"><span style="width:4%"></span></span>
         <span class="dist-val" role="cell">3</span>
       </div>
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-line"></i> På vei</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-line&quot;&gt;&lt;/i&gt; On the way"><i class="mk mk-line"></i> På vei</span>
         <span class="bar" style="color:var(--status-paa-vei)" role="cell"><span style="width:18%"></span></span>
         <span class="dist-val" role="cell">14</span>
       </div>
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-hollow"></i> Hviler</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-hollow&quot;&gt;&lt;/i&gt; Resting"><i class="mk mk-hollow"></i> Hviler</span>
         <span class="bar" style="color:var(--status-hviler)" role="cell"><span style="width:37%"></span></span>
         <span class="dist-val" role="cell">28</span>
       </div>
       <div class="dist-row" role="row">
-        <span class="dist-name" role="rowheader"><i class="mk mk-dot"></i> Usikker</span>
+        <span class="dist-name" role="rowheader" data-en="&lt;i class=&quot;mk mk-dot&quot;&gt;&lt;/i&gt; Uncertain"><i class="mk mk-dot"></i> Usikker</span>
         <span class="bar" style="color:var(--status-usikker)" role="cell"><span style="width:7%"></span></span>
         <span class="dist-val" role="cell">5</span>
       </div>
@@ -630,43 +648,43 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section>
   <div class="shell">
     <div class="sec-head">
-      <span class="eyebrow">I kveld</span>
-      <h2>«Hva åpner vi?» — tre svar fra ditt eget skap</h2>
-      <p class="lede">
+      <span class="eyebrow" data-en="Tonight">I kveld</span>
+      <h2 data-en="«What shall we open?» — three answers from your own cellar">«Hva åpner vi?» — tre svar fra ditt eget skap</h2>
+      <p class="lede" data-en="You say what you are eating, who is coming and how long you have. Three suggestions, each with a rationale you are free to disagree with — and where the bottle physically lies.">
         Du sier hva dere spiser, hvem som kommer og hvor lang tid dere har. Tre forslag,
         hver med en begrunnelse du kan være uenig i — og hvor flasken fysisk ligger.
       </p>
     </div>
     <div class="picks">
       <article class="panel pick">
-        <span class="pick-kind">Det trygge valget</span>
+        <span class="pick-kind" data-en="The safe choice">Det trygge valget</span>
         <h3>Chianti Classico 2019</h3>
-        <p class="why">
+        <p class="why" data-en="Suits the lamb shank, and you have two bottles left. No reservation, no risk — it is exactly where it should be right now.">
           Passer lammeskanken, og dere har to flasker igjen. Ingen reservasjon, ingen risiko —
           den er der den skal være akkurat nå.
         </p>
-        <div class="pick-foot"><span>Ø1-R3-C2</span><span>16–18 °C</span><span>30 min i karaffel</span></div>
+        <div class="pick-foot"><span>Ø1-R3-C2</span><span>16–18 °C</span><span data-en="30 min in decanter">30 min i karaffel</span></div>
       </article>
       <article class="panel pick">
-        <span class="pick-kind">Det interessante valget</span>
+        <span class="pick-kind" data-en="The interesting choice">Det interessante valget</span>
         <h3>Barolo Riserva 2016</h3>
-        <p class="why">
+        <p class="why" data-en="Thomas is coming, and he gave top marks to the last bottle from this producer. Needs time: open it first.">
           Thomas kommer, og han ga toppkarakter til den forrige flasken fra samme produsent.
           Krever tid: åpne den først.
         </p>
-        <div class="pick-foot"><span>N2-R1-C7</span><span>Eier: felles</span><span>2 t lufting</span></div>
+        <div class="pick-foot"><span>N2-R1-C7</span><span data-en="Owner: shared">Eier: felles</span><span data-en="2 h to breathe">2 t lufting</span></div>
       </article>
       <article class="panel pick">
-        <span class="pick-kind">Smart å åpne nå</span>
+        <span class="pick-kind" data-en="Smart to open now">Smart å åpne nå</span>
         <h3>Meursault 2017</h3>
-        <p class="why">
+        <p class="why" data-en="Leaving its window over the coming months. Open it tonight and you will still catch it well.">
           På vei ut av vinduet sitt de neste månedene. Åpner dere den i kveld, treffer dere den
           fortsatt godt.
         </p>
-        <div class="pick-foot"><span>K1-R2-C4</span><span>11–13 °C</span><span>Middels sikkerhet</span></div>
+        <div class="pick-foot"><span>K1-R2-C4</span><span>11–13 °C</span><span data-en="Medium confidence">Middels sikkerhet</span></div>
       </article>
     </div>
-    <p class="lede" style="margin-top:22px;font-size:.9rem">
+    <p class="lede" style="margin-top:22px;font-size:.9rem" data-en="Suggestions always come from bottles you already own, and they respect ownership and reservations. No paid placement, no purchase prompts.">
       Forslagene kommer alltid fra flasker du allerede eier, og de respekterer eierskap og
       reservasjoner. Ingen betalt plassering, ingen kjøpsforslag.
     </p>
@@ -676,9 +694,9 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="verdien" class="thesis">
   <div class="shell">
     <div class="sec-head">
-      <span class="eyebrow">Verdien</span>
-      <h2>En samling er en portefølje — og å drikke en flaske er utbyttet</h2>
-      <p class="lede">
+      <span class="eyebrow" data-en="Value">Verdien</span>
+      <h2 data-en="A collection is a portfolio — and drinking a bottle is the dividend">En samling er en portefølje — og å drikke en flaske er utbyttet</h2>
+      <p class="lede" data-en="Capital tied up in assets whose value moves. The difference from shares: bottles are not alike. Each has its own cost and its own history, so the accounting is exact instead of an average.">
         Kapital bundet i eiendeler med en verdi som beveger seg. Forskjellen fra aksjer:
         flasker er ikke like. Hver av dem har sin egen kostpris og sin egen historie, så
         regnskapet blir eksakt i stedet for et gjennomsnitt.
@@ -689,26 +707,26 @@ section{padding-block:clamp(64px,8vw,112px)}
       <div class="panel pf-main">
         <div class="pf-fig">
           <span class="big">286&nbsp;400&nbsp;kr</span>
-          <span class="cap">Estimert verdi · 75 flasker</span>
+          <span class="cap" data-en="Estimated value · 75 bottles">Estimert verdi · 75 flasker</span>
         </div>
         <div class="pf-split">
-          <div class="pf-small"><div class="v">184&nbsp;200&nbsp;kr</div><div class="k">Kostpris</div></div>
-          <div class="pf-small"><div class="v">+55,5&nbsp;%</div><div class="k">Urealisert</div></div>
-          <div class="pf-small"><div class="v">61&nbsp;%</div><div class="k">Tre produsenter</div></div>
+          <div class="pf-small"><div class="v">184&nbsp;200&nbsp;kr</div><div class="k" data-en="Cost">Kostpris</div></div>
+          <div class="pf-small"><div class="v">+55,5&nbsp;%</div><div class="k" data-en="Unrealised">Urealisert</div></div>
+          <div class="pf-small"><div class="v">61&nbsp;%</div><div class="k" data-en="Three producers">Tre produsenter</div></div>
         </div>
       </div>
 
       <div class="panel yield">
-        <span class="eyebrow">Drikkeutbytte · 12 måneder</span>
+        <span class="eyebrow" data-en="Drinking dividend · 12 months">Drikkeutbytte · 12 måneder</span>
         <span class="big">11&nbsp;700&nbsp;kr</span>
-        <p>
+        <p data-en="4.1&amp;nbsp;% of the portfolio, delivered in the glass. A bottle you drank when it was worth NOK&amp;nbsp;2,400 has &lt;em&gt;paid out&lt;/em&gt; NOK&amp;nbsp;2,400 — it is not lost.">
           4,1&nbsp;% av porteføljen, levert i glass. En flaske du drakk da den var verdt
           2&nbsp;400&nbsp;kr har <em>utbetalt</em> 2&nbsp;400&nbsp;kr — den er ikke tapt.
         </p>
       </div>
 
       <div class="panel alloc">
-        <span class="eyebrow">Fordeling</span>
+        <span class="eyebrow" data-en="Allocation">Fordeling</span>
         <div class="alloc-bar" aria-hidden="true">
           <span style="flex:38;background:var(--messing)"></span>
           <span style="flex:21;background:color-mix(in srgb,var(--messing) 78%,var(--surface-card))"></span>
@@ -719,16 +737,16 @@ section{padding-block:clamp(64px,8vw,112px)}
         </div>
         <div class="alloc-key">
           <div><i style="background:var(--messing)"></i>Bordeaux <b>38 %</b></div>
-          <div><i style="background:color-mix(in srgb,var(--messing) 78%,var(--surface-card))"></i>Burgund <b>21 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 78%,var(--surface-card))"></i><span data-en="Burgundy">Burgund</span> <b>21 %</b></div>
           <div><i style="background:color-mix(in srgb,var(--messing) 58%,var(--surface-card))"></i>Piemonte <b>14 %</b></div>
           <div><i style="background:color-mix(in srgb,var(--messing) 42%,var(--surface-card))"></i>Rhône <b>9 %</b></div>
           <div><i style="background:color-mix(in srgb,var(--messing) 30%,var(--surface-card))"></i>Champagne <b>8 %</b></div>
-          <div><i style="background:color-mix(in srgb,var(--messing) 18%,var(--surface-card))"></i>Annet <b>10 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 18%,var(--surface-card))"></i><span data-en="Other">Annet</span> <b>10 %</b></div>
         </div>
       </div>
     </div>
 
-    <p class="lede" style="margin-top:20px;font-size:.9rem">
+    <p class="lede" style="margin-top:20px;font-size:.9rem" data-en="Without the dividend line every opened bottle would look like a loss — and we would have built something that makes people afraid to drink their own wine. The figure is descriptive, never a target: no streaks, no comparisons, and it can be turned off.">
       Uten utbyttelinjen ville hver åpnede flaske sett ut som et tap — og da hadde vi bygget
       noe som gjør folk redde for å drikke vinen sin. Tallet er beskrivende, aldri et mål:
       ingen streaks, ingen sammenligning, og det kan skrus av.
@@ -739,14 +757,14 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="skapet">
   <div class="shell split rev">
     <div class="split-copy">
-      <span class="eyebrow">Skapet</span>
-      <h2>Klimaet forteller hvor sikre vi kan være</h2>
-      <p>
+      <span class="eyebrow" data-en="The cabinet">Skapet</span>
+      <h2 data-en="Climate tells us how confident we can be">Klimaet forteller hvor sikre vi kan være</h2>
+      <p data-en="Temperature and humidity are not a verdict on the wine. They are the basis for how much we dare claim about the drinking window. A brief peak while the door stood open is not a deviation — it is a door.">
         Temperatur og fuktighet er ikke en dom over vinen. De er grunnlaget for hvor mye vi
         tør å påstå om drikkevinduet. En kortvarig topp mens døra sto åpen er ikke et avvik —
         det er en dør.
       </p>
-      <p>
+      <p data-en="Alerts require both a threshold and a duration, and they say what happened and what it means. No automatic conclusion that a wine is ruined.">
         Varsler krever både terskel og varighet, og de sier hva som skjedde og hva det betyr.
         Ingen automatisk konklusjon om at en vin er ødelagt.
       </p>
@@ -754,8 +772,8 @@ section{padding-block:clamp(64px,8vw,112px)}
 
     <div class="panel climate split-media">
       <div class="cl-state">
-        <span class="cl-badge">Stabilt</span>
-        <span class="cl-line">Siste 30 dager · snitt 12,1 °C</span>
+        <span class="cl-badge" data-en="Stable">Stabilt</span>
+        <span class="cl-line" data-en="Last 30 days · avg 12.1 °C">Siste 30 dager · snitt 12,1 °C</span>
       </div>
       <div class="spark" aria-hidden="true">
         <i style="height:41%"></i><i style="height:44%"></i><i style="height:43%"></i><i style="height:46%"></i>
@@ -767,7 +785,7 @@ section{padding-block:clamp(64px,8vw,112px)}
         <i style="height:44%"></i><i style="height:45%"></i><i style="height:48%"></i><i style="height:44%"></i>
         <i style="height:46%"></i><i style="height:45%"></i>
       </div>
-      <div class="cl-scale"><span>1. juli</span><span>Største avvik: 14,4 °C i 38 min</span><span>I dag</span></div>
+      <div class="cl-scale" data-en="1 July"><span>1. juli</span data-en="Largest deviation: 14.4 °C for 38 min"><span>Største avvik: 14,4 °C i 38 min</span data-en="Today"><span>I dag</span></div>
     </div>
   </div>
 </section>
@@ -776,20 +794,20 @@ section{padding-block:clamp(64px,8vw,112px)}
   <div class="shell">
     <div class="sec-head">
       <span class="eyebrow">Zero Administration</span>
-      <h2>Hvert trinn fjerner arbeid, ikke legger til felter</h2>
-      <p class="lede">
+      <h2 data-en="Every step removes work rather than adding fields">Hvert trinn fjerner arbeid, ikke legger til felter</h2>
+      <p class="lede" data-en="Inventory stops being true the moment registering feels like work. So the road ahead is measured in how little you must do — not in how many features we have.">
         Beholdningen slutter å stemme i det registrering føles som arbeid. Derfor er veien
         videre målt i hvor lite du må gjøre — ikke i hvor mange funksjoner vi har.
       </p>
     </div>
     <div class="ladder">
-      <div class="rung"><span class="rung-n">Nivå 0</span><span class="rung-t">Manuelt</span><span class="rung-d">Du registrerer alt selv. Fungerer, men bare så lenge du orker.</span></div>
-      <div class="rung here"><span class="rung-n">Nivå 1</span><span class="rung-t">Skanning</span><span class="rung-d">Etiketten gjenkjennes, plassen foreslås. Under 15 sekunder for en kjent vin.</span></div>
-      <div class="rung"><span class="rung-n">Nivå 2</span><span class="rung-t">Merket</span><span class="rung-d">QR eller NFC identifiserer den fysiske flasken og hylla.</span></div>
-      <div class="rung"><span class="rung-n">Nivå 3</span><span class="rung-t">Smart hylle</span><span class="rung-d">Skapet merker selv hvilken plass som blir ledig eller fylt.</span></div>
-      <div class="rung"><span class="rung-n">Nivå 4</span><span class="rung-t">Kamera</span><span class="rung-d">Systemet forstår flaskebevegelsene i skapet.</span></div>
-      <div class="rung"><span class="rung-n">Nivå 5</span><span class="rung-t">Sammenstilling</span><span class="rung-d">Kamera, hyllesensor, merke og dørstatus sammen: «flasken forlot A24 kl. 19.42».</span></div>
-      <div class="rung"><span class="rung-n">Nivå 6</span><span class="rung-t">Usynlig</span><span class="rung-d">Du tar en flaske. Alt annet skjer av seg selv — og du blir bare spurt når det er tvil.</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 0">Nivå 0</span><span class="rung-t" data-en="Manual">Manuelt</span><span class="rung-d" data-en="You register everything yourself. Works, but only for as long as you can be bothered.">Du registrerer alt selv. Fungerer, men bare så lenge du orker.</span></div>
+      <div class="rung here"><span class="rung-n" data-en="Level 1">Nivå 1</span><span class="rung-t" data-en="Scanning">Skanning</span><span class="rung-d" data-en="The label is recognised and a slot suggested. Under 15 seconds for a known wine.">Etiketten gjenkjennes, plassen foreslås. Under 15 sekunder for en kjent vin.</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 2">Nivå 2</span><span class="rung-t" data-en="Tagged">Merket</span><span class="rung-d" data-en="QR or NFC identifies the physical bottle and the shelf.">QR eller NFC identifiserer den fysiske flasken og hylla.</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 3">Nivå 3</span><span class="rung-t" data-en="Smart shelf">Smart hylle</span><span class="rung-d" data-en="The cabinet senses which slot is emptied or filled.">Skapet merker selv hvilken plass som blir ledig eller fylt.</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 4">Nivå 4</span><span class="rung-t" data-en="Camera">Kamera</span><span class="rung-d" data-en="The system understands bottle movements inside the cabinet.">Systemet forstår flaskebevegelsene i skapet.</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 5">Nivå 5</span><span class="rung-t" data-en="Sensor fusion">Sammenstilling</span><span class="rung-d" data-en="Camera, shelf sensor, tag and door state together: «the bottle left A24 at 19:42».">Kamera, hyllesensor, merke og dørstatus sammen: «flasken forlot A24 kl. 19.42».</span></div>
+      <div class="rung"><span class="rung-n" data-en="Level 6">Nivå 6</span><span class="rung-t" data-en="Invisible">Usynlig</span><span class="rung-d" data-en="You take a bottle. Everything else happens by itself — and you are only asked when there is doubt.">Du tar en flaske. Alt annet skjer av seg selv — og du blir bare spurt når det er tvil.</span></div>
     </div>
   </div>
 </section>
@@ -797,18 +815,18 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="produsenter" class="oem">
   <div class="shell oem-grid">
     <div class="split-copy">
-      <span class="eyebrow">For vinskapsprodusenter</span>
-      <h2>Den digitale opplevelsen et moderne vinskap mangler</h2>
-      <p>
+      <span class="eyebrow" data-en="For cabinet manufacturers">For vinskapsprodusenter</span>
+      <h2 data-en="The digital experience a modern wine cabinet lacks">Den digitale opplevelsen et moderne vinskap mangler</h2>
+      <p data-en="CellarOS is the platform behind the product: domain engine, cabinet model, maturity, permissions and an adapter layer that speaks to sensors, lights and cabinet electronics. The core knows no manufacturer-specific protocols — each manufacturer gets its own adapter.">
         CellarOS er plattformen bak Vinskapet: domenemotor, skapmodell, modning, rettigheter
         og et adapterlag som snakker med sensorer, lys og skapelektronikk. Kjernen kjenner
         ikke produsentspesifikke protokoller — hver produsent får sin egen adapter.
       </p>
       <div class="oem-list">
-        <div><b>Co-brand før white-label.</b> «Powered by CellarOS» gir sterkere plattform og lavere vedlikehold.</div>
-        <div><b>Egen logo, skapmal og funksjonsnivå</b> uten å forgrene kodebasen.</div>
-        <div><b>Fungerer offline.</b> Skjermen ved skapet blir ikke ubrukelig fordi en skytjeneste er nede.</div>
-        <div><b>Referansehardware finnes allerede.</b> Nettbrett i kioskmodus og en standard klimasensor.</div>
+        <div data-en="&lt;b&gt;Co-brand before white-label.&lt;/b&gt; «Powered by CellarOS» means a stronger platform and lower maintenance."><b>Co-brand før white-label.</b> «Powered by CellarOS» gir sterkere plattform og lavere vedlikehold.</div>
+        <div data-en="&lt;b&gt;Your own logo, cabinet template and feature tier&lt;/b&gt; without forking the codebase."><b>Egen logo, skapmal og funksjonsnivå</b> uten å forgrene kodebasen.</div>
+        <div data-en="&lt;b&gt;Works offline.&lt;/b&gt; The screen by the cabinet does not go dead because a cloud service is down."><b>Fungerer offline.</b> Skjermen ved skapet blir ikke ubrukelig fordi en skytjeneste er nede.</div>
+        <div data-en="&lt;b&gt;Reference hardware already exists.&lt;/b&gt; A tablet in kiosk mode and a standard climate sensor."><b>Referansehardware finnes allerede.</b> Nettbrett i kioskmodus og en standard klimasensor.</div>
       </div>
     </div>
     <div style="display:flex;justify-content:center">
@@ -833,14 +851,14 @@ section{padding-block:clamp(64px,8vw,112px)}
 <section id="founders">
   <div class="shell close">
     <span class="eyebrow">Founders Cellars</span>
-    <h2>Vi leter etter de første 50 skapene</h2>
-    <p class="lede">
+    <h2 data-en="We are looking for the first 50 cellars">Vi leter etter de første 50 skapene</h2>
+    <p class="lede" data-en="If you have between 30 and 300 bottles and a cabinet you are fond of, we would like to build this with you. No cost, no obligation — we need real cabinets, real mess and honest feedback.">
       Har du mellom 30 og 300 flasker og et skap du er glad i, vil vi gjerne bygge dette
       sammen med deg. Ingen kostnad, ingen forpliktelse — vi trenger ekte skap, ekte rot og
       ærlige tilbakemeldinger.
     </p>
-    <a class="btn btn-primary" href="#founders">Meld interesse</a>
-    <p class="hero-note">Vi tar kontakt før noe lanseres. Dataene dine er dine, og kan eksporteres når som helst.</p>
+    <a class="btn btn-primary" href="#founders" data-en="Register interest">Meld interesse</a>
+    <p class="hero-note" data-en="We will be in touch before anything launches. Your data is yours, and can be exported at any time.">Vi tar kontakt før noe lanseres. Dataene dine er dine, og kan eksporteres når som helst.</p>
   </div>
 </section>
 
@@ -849,23 +867,23 @@ section{padding-block:clamp(64px,8vw,112px)}
 <footer class="foot">
   <div class="shell foot-in">
     <div class="foot-legal">
-      <p>
+      <p data-en="&lt;strong&gt;CellarOS&lt;/strong&gt; is an inventory, storage and knowledge tool for wine you already own. The service does not sell alcohol, does not broker sales, and contains no sponsored or manufacturer-paid recommendations.">
         <strong>Vinskapet</strong> er et inventar-, lagrings- og kunnskapsverktøy for vin du
         allerede eier. Tjenesten selger ikke alkohol, formidler ikke salg og inneholder ingen
         sponsede eller produsentbetalte anbefalinger.
       </p>
-      <p>
+      <p data-en="Product data may be retrieved from Vinmonopolet&#x27;s open API under their terms. CellarOS is not affiliated with, endorsed by or in partnership with Vinmonopolet.">
         Produktdata kan hentes fra Vinmonopolets åpne API etter deres vilkår. Vinskapet er
         ikke tilknyttet, godkjent av eller i samarbeid med Vinmonopolet.
       </p>
-      <p>
+      <p data-en="Value estimates are estimates with a stated source and date, and are not investment advice. All bottles, figures and screens on this page are examples.">
         Verdianslag er estimater med oppgitt kilde og dato, og er ikke investeringsrådgivning.
         Alle flasker, tall og skjermbilder på denne siden er eksempler.
       </p>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
       <span class="wm" style="opacity:.7"><span class="wm-s">CellarOS</span></span>
-      <span style="font-size:.75rem;letter-spacing:.13em;text-transform:uppercase">I Norge: Vinskapet</span>
+      <span style="font-size:.75rem;letter-spacing:.13em;text-transform:uppercase" data-en="In Norway: Vinskapet">I Norge: Vinskapet</span>
     </div>
   </div>
 </footer>
@@ -900,6 +918,43 @@ section{padding-block:clamp(64px,8vw,112px)}
     }
   }
 
+  // Språk. Norsk er kilden i markup; engelsk ligger som data-en på hvert element.
+  var TEKST = {
+    no: { tittel: 'CellarOS — vinskapet ditt, slik det faktisk er',
+          lys: 'Lys visning', mork: 'Mørk visning',
+          visning: 'Bytt mellom lys og mørk visning' },
+    en: { tittel: 'CellarOS — your cellar, as it actually is',
+          lys: 'Light', mork: 'Dark',
+          visning: 'Switch between light and dark' }
+  };
+  var sprak = 'no';
+  var original = new WeakMap();
+
+  function settSprak(l) {
+    sprak = (l === 'en') ? 'en' : 'no';
+    document.documentElement.lang = (sprak === 'en') ? 'en' : 'nb';
+    document.title = TEKST[sprak].tittel;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!original.has(el)) original.set(el, el.innerHTML);
+      el.innerHTML = (sprak === 'en') ? el.dataset.en : original.get(el);
+    });
+    document.querySelectorAll('.lang button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === sprak));
+    });
+    try { localStorage.setItem('cellaros-sprak', sprak); } catch (e) {}
+    if (typeof window.oppdaterVisningsknapp === 'function') window.oppdaterVisningsknapp();
+  }
+
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () { settSprak(b.dataset.lang); });
+  });
+
+  var lagret = null;
+  try { lagret = localStorage.getItem('cellaros-sprak'); } catch (e) {}
+  var nettleser = (navigator.language || '').toLowerCase();
+  var norskBruker = nettleser.indexOf('nb') === 0 || nettleser.indexOf('nn') === 0 || nettleser.indexOf('no') === 0;
+  settSprak(lagret || (norskBruker ? 'no' : 'en'));
+
   // Lys/mørk visning. Følger systemet til brukeren velger selv.
   var btn = document.getElementById('theme');
   if (btn) {
@@ -908,8 +963,10 @@ section{padding-block:clamp(64px,8vw,112px)}
       var darkNow = root.dataset.theme
         ? root.dataset.theme === 'dark'
         : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      btn.textContent = darkNow ? 'Lys visning' : 'Mørk visning';
+      btn.textContent = darkNow ? TEKST[sprak].lys : TEKST[sprak].mork;
+      btn.setAttribute('aria-label', TEKST[sprak].visning);
     };
+    window.oppdaterVisningsknapp = label;
     label();
     btn.addEventListener('click', function(){
       var darkNow = root.dataset.theme
