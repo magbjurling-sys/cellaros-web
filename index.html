@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinskapet — vinskapet ditt, slik det faktisk er</title>
+<meta name="description" content="Vinskapet vet hvilken enkeltflaske som finnes, hvor den ligger, hvem den er fra og når den bør åpnes. Et operativsystem for private vinsamlinger. Powered by CellarOS.">
+<link rel="canonical" href="https://cellaros.no/">
+<link rel="icon" href="brand/app-icon.svg">
+<meta name="theme-color" content="#101014" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cellaros.no/">
+<meta property="og:site_name" content="Vinskapet">
+<meta property="og:locale" content="nb_NO">
+<meta property="og:title" content="Vinskapet — vinskapet ditt, slik det faktisk er">
+<meta property="og:description" content="De fleste vinapper vet hva du eier. Vinskapet vet hvilken flaske — hvor den ligger, hvem du fikk den av, og hva som skjedde den kvelden dere åpnet den.">
+<meta property="og:image" content="https://cellaros.no/brand/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+@font-face{font-family:'Newsreader';font-style:normal;font-weight:400 600;font-display:swap;src:url("fonts/newsreader-latin.woff2") format('woff2');}
+@font-face{font-family:'Public Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url("fonts/public-sans-latin.woff2") format('woff2');}
+/*TOKENS*/
+:root{
+  --glass-0:#101014;--glass-1:#17171d;--glass-2:#1e1e26;--glass-3:#26262f;--glass-border:#34343f;
+  --kalkstein:#d8d3c8;--pergament:#efe9dc;--offwhite:#f6f3ec;
+  --ink-1:#f1ede4;--ink-2:#b9b4a8;--ink-3:#807b70;
+  --messing:#c2a05a;--messing-dyp:#9a7c3e;--messing-ink:#241c08;
+  --flaskegronn:#5f7d5e;--flaskegronn-lys:#8fae8d;
+  --rav:#d99a4e;--rav-lys:#e8b877;
+  --blaagraa:#7f97ad;--blaagraa-lys:#a8bcce;
+  --rubin:#a34a58;--rubin-lys:#c97f8b;
+
+  --status-hviler:#5b6472;--status-paa-vei:var(--blaagraa);--status-drikkeklar:var(--flaskegronn-lys);
+  --status-paa-topp:var(--rav);--status-prioriter:var(--rubin-lys);--status-usikker:var(--ink-3);
+
+  --surface-page:var(--glass-0);--surface-card:var(--glass-2);--surface-raised:var(--glass-3);
+  --border-1:var(--glass-border);--border-2:#454552;
+  --text-body:var(--ink-1);--text-muted:var(--ink-2);--text-faint:var(--ink-3);
+  --accent:var(--messing);--accent-ink:var(--messing-ink);
+  --logo-ink:var(--ink-1);
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --sans:'Public Sans',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --shell:1140px;--rad:14px;--rad-sm:9px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root{
+    --surface-page:var(--offwhite);--surface-card:#fffdf8;--surface-raised:var(--pergament);
+    --border-1:#ddd6c8;--border-2:#c8c0af;
+    --text-body:#26241e;--text-muted:#5d594e;--text-faint:#8a8577;
+    --accent:var(--messing-dyp);--accent-ink:#fdf8ee;--logo-ink:#1c1a15;
+    --status-hviler:#8b93a1;--status-paa-vei:#5d7f9c;--status-drikkeklar:#4e7350;
+    --status-paa-topp:#b57a2e;--status-prioriter:#a34a58;--status-usikker:#8a8577;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --surface-page:var(--offwhite);--surface-card:#fffdf8;--surface-raised:var(--pergament);
+  --border-1:#ddd6c8;--border-2:#c8c0af;
+  --text-body:#26241e;--text-muted:#5d594e;--text-faint:#8a8577;
+  --accent:var(--messing-dyp);--accent-ink:#fdf8ee;--logo-ink:#1c1a15;
+  --status-hviler:#8b93a1;--status-paa-vei:#5d7f9c;--status-drikkeklar:#4e7350;
+  --status-paa-topp:#b57a2e;--status-prioriter:#a34a58;--status-usikker:#8a8577;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --surface-page:var(--glass-0);--surface-card:var(--glass-2);--surface-raised:var(--glass-3);
+  --border-1:var(--glass-border);--border-2:#454552;
+  --text-body:var(--ink-1);--text-muted:var(--ink-2);--text-faint:var(--ink-3);
+  --accent:var(--messing);--accent-ink:var(--messing-ink);--logo-ink:var(--ink-1);
+  --status-hviler:#5b6472;--status-paa-vei:var(--blaagraa);--status-drikkeklar:var(--flaskegronn-lys);
+  --status-paa-topp:var(--rav);--status-prioriter:var(--rubin-lys);--status-usikker:var(--ink-3);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--surface-page);color:var(--text-body);
+  font-family:var(--sans);font-size:16.5px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+.shell{width:100%;max-width:var(--shell);margin-inline:auto;padding-inline:24px}
+.eyebrow{
+  font-size:.71rem;font-weight:600;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--accent);
+}
+h1,h2,h3{font-family:var(--serif);font-weight:400;text-wrap:balance;line-height:1.14;letter-spacing:.005em}
+h1{font-size:clamp(2.5rem,5.6vw,4.15rem)}
+h2{font-size:clamp(1.85rem,3.3vw,2.65rem)}
+h3{font-size:1.22rem;line-height:1.3}
+p{text-wrap:pretty}
+.lede{font-size:clamp(1.04rem,1.5vw,1.19rem);color:var(--text-muted);max-width:60ch}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums}
+
+/* ---------- kappe ---------- */
+.top{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--surface-page) 86%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border-1);
+}
+.top-in{display:flex;align-items:center;gap:28px;height:66px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:0 0 auto}
+.brand-mark{width:26px;height:26px;flex:0 0 auto}
+.wm{display:flex;align-items:baseline;gap:0;line-height:1}
+.wm-s{font-family:var(--serif);font-size:1.32rem;letter-spacing:.01em}
+.wm-n{font-family:var(--sans);font-size:.95rem;font-weight:500;letter-spacing:.005em}
+.nav{display:flex;gap:26px;margin-left:auto;align-items:center}
+.nav a{font-size:.9rem;color:var(--text-muted);text-decoration:none}
+.nav a:hover{color:var(--text-body)}
+.theme-btn{
+  background:transparent;border:1px solid var(--border-1);color:var(--text-muted);
+  border-radius:999px;height:32px;padding:0 13px;font:inherit;font-size:.82rem;cursor:pointer;
+}
+.theme-btn:hover{border-color:var(--border-2);color:var(--text-body)}
+@media (max-width:860px){.nav a{display:none}}
+
+.btn{
+  display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 22px;
+  border-radius:var(--rad-sm);font:inherit;font-size:.94rem;font-weight:600;
+  text-decoration:none;cursor:pointer;border:1px solid transparent;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease;
+}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{transform:translateY(-1px);background:var(--rav-lys)}
+.btn-ghost{border-color:var(--border-2);color:var(--text-body)}
+.btn-ghost:hover{border-color:var(--accent);transform:translateY(-1px)}
+
+section{padding-block:clamp(64px,8vw,112px)}
+.sec-head{max-width:62ch;display:flex;flex-direction:column;gap:14px;margin-bottom:44px}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(52px,7vw,92px) clamp(56px,7vw,96px);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:-30% -10% auto;height:70vh;pointer-events:none;
+  background:radial-gradient(58% 52% at 68% 34%,color-mix(in srgb,var(--messing) 15%,transparent),transparent 72%);
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(34px,5vw,70px);align-items:center;position:relative}
+.hero-copy{display:flex;flex-direction:column;gap:22px;max-width:37ch}
+.hero h1 .serif-em{color:var(--accent)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.hero-note{font-size:.83rem;color:var(--text-faint);max-width:44ch}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr}}
+
+/* cellar-panel: markens rutespråk som produktflate */
+.panel{
+  background:var(--surface-card);border:1px solid var(--border-1);border-radius:var(--rad);
+  box-shadow:0 22px 60px -32px rgba(0,0,0,.7);
+}
+.cellar{padding:20px;display:flex;flex-direction:column;gap:16px}
+.cellar-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cellar-name{font-family:var(--serif);font-size:1.05rem}
+.cellar-meta{font-size:.76rem;color:var(--text-faint);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}
+.slot{
+  aspect-ratio:1;border:1.6px solid var(--border-2);border-radius:5px;opacity:.5;
+  transition:opacity .5s ease,background .5s ease,border-color .5s ease,box-shadow .5s ease;
+}
+.slot.full{opacity:.85;background:color-mix(in srgb,var(--text-faint) 16%,transparent)}
+.slot.free{border-style:dashed;opacity:.3}
+.slot.lit{
+  opacity:1;background:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent),0 0 26px -2px var(--accent);
+}
+.cellar-found{
+  display:flex;align-items:center;gap:13px;padding:13px;border-radius:var(--rad-sm);
+  background:var(--surface-raised);border:1px solid var(--border-1);
+}
+.found-dot{width:9px;height:9px;border-radius:2px;background:var(--accent);flex:0 0 auto}
+.found-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.found-name{font-family:var(--serif);font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.found-sub{font-size:.79rem;color:var(--text-muted)}
+.found-pos{margin-left:auto;font-family:var(--serif);font-size:.95rem;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ---------- tese ---------- */
+.thesis{background:var(--surface-card);border-block:1px solid var(--border-1)}
+.thesis-lead{font-family:var(--serif);font-size:clamp(1.35rem,2.4vw,1.95rem);line-height:1.32;max-width:30ch;text-wrap:balance}
+.thesis-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(32px,5vw,64px);align-items:start}
+.three{display:flex;flex-direction:column;gap:2px}
+.idea{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:22px 0;border-top:1px solid var(--border-1)}
+.idea:last-child{border-bottom:1px solid var(--border-1)}
+.idea-mark{width:34px;height:34px;margin-top:3px}
+.idea h3{margin-bottom:5px}
+.idea p{color:var(--text-muted);font-size:.94rem;max-width:52ch}
+@media (max-width:860px){.thesis-grid{grid-template-columns:1fr}}
+
+/* ---------- generisk todeling ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,4.5vw,64px);align-items:center}
+.split.rev .split-media{order:-1}
+@media (max-width:900px){.split{grid-template-columns:1fr}.split.rev .split-media{order:0}}
+.split-copy{display:flex;flex-direction:column;gap:16px;max-width:52ch}
+.split-copy p{color:var(--text-muted)}
+
+/* ---------- pass / tidslinje ---------- */
+.passport{padding:22px}
+.pp-head{display:flex;gap:14px;align-items:flex-start;padding-bottom:18px;border-bottom:1px solid var(--border-1)}
+.pp-label{
+  width:46px;height:60px;border-radius:4px;flex:0 0 auto;
+  background:linear-gradient(170deg,var(--surface-raised),color-mix(in srgb,var(--messing) 22%,var(--surface-raised)));
+  border:1px solid var(--border-1);
+}
+.pp-id{font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--text-faint)}
+.pp-name{font-family:var(--serif);font-size:1.2rem;margin-block:3px 5px}
+.pp-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  font-size:.72rem;padding:2.5px 9px;border-radius:999px;
+  border:1px solid var(--border-2);color:var(--text-muted);
+}
+.tag.accent{border-color:var(--accent);color:var(--accent)}
+.tl{list-style:none;display:flex;flex-direction:column;padding-top:6px}
+.tl li{display:grid;grid-template-columns:15px 1fr;gap:14px;padding:11px 0}
+.tl-rail{position:relative;display:flex;justify-content:center}
+.tl-rail::before{content:"";position:absolute;top:-11px;bottom:-11px;width:1px;background:var(--border-1)}
+.tl-rail i{
+  width:7px;height:7px;border-radius:2px;background:var(--border-2);
+  margin-top:7px;position:relative;z-index:1;
+}
+.tl li.now .tl-rail i{background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.tl-when{font-size:.74rem;color:var(--text-faint);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.tl-what{font-size:.95rem}
+.tl-what b{font-weight:600}
+.tl-note{font-size:.86rem;color:var(--text-muted)}
+
+/* ---------- puls / statistikk ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px}
+.tile{padding:17px 18px;display:flex;flex-direction:column;gap:5px}
+.tile .n{font-family:var(--serif);font-size:2.1rem;line-height:1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.8rem;color:var(--text-muted)}
+.tile .sub{font-size:.74rem;color:var(--text-faint)}
+
+.dist{display:flex;flex-direction:column;gap:0;margin-top:22px}
+.dist-row{
+  display:grid;grid-template-columns:132px 1fr 46px;gap:14px;align-items:center;
+  padding:9px 0;border-top:1px solid var(--border-1);
+}
+.dist-row:last-child{border-bottom:1px solid var(--border-1)}
+.dist-name{display:flex;align-items:center;gap:9px;font-size:.88rem}
+/* form + etikett bærer betydningen — fargen alene gjør det aldri */
+.mk{width:11px;height:11px;flex:0 0 auto}
+.mk-fill{background:var(--status-drikkeklar);border-radius:2px}
+.mk-ring{border:2.4px solid var(--status-paa-topp);border-radius:2px}
+.mk-diamond{background:var(--status-prioriter);transform:rotate(45deg);border-radius:1px}
+.mk-line{border-top:2.4px solid var(--status-paa-vei);height:0;margin-block:5px}
+.mk-hollow{border:1.6px dashed var(--status-hviler);border-radius:2px}
+.mk-dot{background:var(--status-usikker);border-radius:50%;width:9px;height:9px}
+.bar{height:9px;border-radius:2px;background:var(--border-1);overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:2px;background:currentColor}
+.dist-val{font-family:var(--serif);font-size:.95rem;text-align:right;font-variant-numeric:tabular-nums;color:var(--text-muted)}
+
+/* ---------- portefølje ---------- */
+.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.pf-main{padding:22px;display:flex;flex-direction:column;gap:16px}
+.pf-fig{display:flex;flex-direction:column;gap:3px}
+.pf-fig .big{font-family:var(--serif);font-size:clamp(2.1rem,4vw,2.9rem);line-height:1;font-variant-numeric:tabular-nums}
+.pf-fig .cap{font-size:.81rem;color:var(--text-muted)}
+.pf-split{display:flex;gap:26px;flex-wrap:wrap}
+.pf-small .v{font-family:var(--serif);font-size:1.32rem;font-variant-numeric:tabular-nums}
+.pf-small .k{font-size:.77rem;color:var(--text-faint)}
+.yield{
+  padding:22px;display:flex;flex-direction:column;gap:11px;
+  border:1px solid var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface-card));
+}
+.yield .big{font-family:var(--serif);font-size:clamp(1.9rem,3.4vw,2.5rem);line-height:1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.yield p{font-size:.89rem;color:var(--text-muted)}
+/* allokering: én tone, lys → mørk (magnitude, ikke identitet) */
+.alloc{padding:22px;display:flex;flex-direction:column;gap:14px}
+.alloc-bar{display:flex;gap:2px;height:13px}
+.alloc-bar span{border-radius:2px}
+.alloc-key{display:flex;flex-wrap:wrap;gap:9px 20px}
+.alloc-key div{display:flex;align-items:center;gap:7px;font-size:.83rem;color:var(--text-muted)}
+.alloc-key i{width:10px;height:10px;border-radius:2px;flex:0 0 auto}
+.alloc-key b{font-family:var(--serif);font-weight:400;color:var(--text-body);font-variant-numeric:tabular-nums}
+
+/* ---------- kveldens valg ---------- */
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:14px}
+.pick{padding:20px;display:flex;flex-direction:column;gap:11px}
+.pick-kind{font-size:.71rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.pick h3{font-size:1.1rem}
+.pick .why{font-size:.89rem;color:var(--text-muted);flex:1}
+.pick-foot{display:flex;flex-wrap:wrap;gap:7px;padding-top:12px;border-top:1px solid var(--border-1)}
+.pick-foot span{font-size:.75rem;color:var(--text-faint)}
+.pick-foot span+span::before{content:"·";margin-right:7px;color:var(--border-2)}
+
+/* ---------- stigen ---------- */
+.ladder{display:flex;flex-direction:column}
+.rung{
+  display:grid;grid-template-columns:66px 190px 1fr;gap:20px;align-items:baseline;
+  padding:15px 0;border-top:1px solid var(--border-1);
+}
+.rung:last-child{border-bottom:1px solid var(--border-1)}
+.rung-n{font-family:var(--serif);font-size:1.02rem;color:var(--text-faint);font-variant-numeric:tabular-nums}
+.rung-t{font-size:.97rem;font-weight:600}
+.rung-d{font-size:.9rem;color:var(--text-muted)}
+.rung.here{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.rung.here .rung-n,.rung.here .rung-t{color:var(--accent)}
+@media (max-width:760px){.rung{grid-template-columns:52px 1fr;row-gap:4px}.rung-d{grid-column:2}}
+
+/* ---------- klima ---------- */
+.climate{padding:22px;display:flex;flex-direction:column;gap:16px}
+.cl-state{display:flex;align-items:center;gap:11px}
+.cl-badge{
+  font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+  padding:4px 11px;border-radius:999px;border:1px solid var(--blaagraa);color:var(--blaagraa-lys);
+}
+.cl-line{font-size:.9rem;color:var(--text-muted)}
+.spark{display:flex;align-items:flex-end;gap:3px;height:64px}
+.spark i{flex:1;background:color-mix(in srgb,var(--blaagraa) 42%,transparent);border-radius:2px 2px 0 0;min-height:3px}
+.spark i.hot{background:var(--rav)}
+.cl-scale{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-faint);font-variant-numeric:tabular-nums}
+
+/* ---------- oem ---------- */
+.oem{background:var(--surface-card);border-block:1px solid var(--border-1)}
+.oem-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,64px);align-items:center}
+.oem-list{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.oem-list div{padding:12px 0;border-top:1px solid var(--border-1);font-size:.93rem;color:var(--text-muted)}
+.oem-list div:last-child{border-bottom:1px solid var(--border-1)}
+.oem-list b{color:var(--text-body);font-weight:600}
+.oem-badge{
+  display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border-radius:var(--rad-sm);
+  border:1px solid var(--border-2);background:var(--surface-raised);
+}
+.oem-badge span{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text-faint)}
+@media (max-width:900px){.oem-grid{grid-template-columns:1fr}}
+
+/* ---------- avslutning ---------- */
+.close{text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px}
+.close h2{max-width:20ch}
+.close .lede{max-width:52ch}
+.foot{border-top:1px solid var(--border-1);padding-block:38px 46px;font-size:.83rem;color:var(--text-faint)}
+.foot-in{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between}
+.foot-legal{max-width:62ch;display:flex;flex-direction:column;gap:9px}
+.foot-legal p{line-height:1.5}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="shell top-in">
+    <a class="brand" href="#" aria-label="Vinskapet — hjem">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <g fill="none" stroke="var(--logo-ink)" stroke-width="2" opacity="0.5">
+          <rect x="1" y="1" width="10" height="10" rx="2.5"/><rect x="15" y="1" width="10" height="10" rx="2.5"/><rect x="29" y="1" width="10" height="10" rx="2.5"/>
+          <rect x="1" y="15" width="10" height="10" rx="2.5"/><rect x="29" y="15" width="10" height="10" rx="2.5"/>
+          <rect x="1" y="29" width="10" height="10" rx="2.5"/><rect x="15" y="29" width="10" height="10" rx="2.5"/><rect x="29" y="29" width="10" height="10" rx="2.5"/>
+        </g>
+        <rect x="15" y="15" width="10" height="10" rx="2.5" fill="var(--messing)"/>
+      </svg>
+      <span class="wm"><span class="wm-s">VIN</span><span class="wm-n">skapet</span></span>
+    </a>
+    <nav class="nav">
+      <a href="#flasken">Flasken</a>
+      <a href="#samlingen">Samlingen</a>
+      <a href="#verdien">Verdien</a>
+      <a href="#skapet">Skapet</a>
+      <a href="#produsenter">For produsenter</a>
+      <button class="theme-btn" id="theme" type="button" aria-label="Bytt mellom lys og mørk visning">Lys visning</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="shell hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Vinskapet · powered by CellarOS</span>
+      <h1>Vinskapet ditt, <span class="serif-em">slik det faktisk er</span>.</h1>
+      <p class="lede">
+        De fleste vinapper vet hva du eier. Vinskapet vet hvilken <em>flaske</em> —
+        hvor den ligger, hvem du fikk den av, hvordan den har hatt det, og hva som
+        skjedde den kvelden dere åpnet den.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#founders">Bli med i Founders Cellars</a>
+        <a class="btn btn-ghost" href="#flasken">Se hvordan det virker</a>
+      </div>
+      <p class="hero-note">
+        Konseptvisning under utvikling. Alle tall og flasker på denne siden er eksempler.
+      </p>
+    </div>
+
+    <div class="panel cellar" aria-hidden="true">
+      <div class="cellar-top">
+        <span class="cellar-name">Vinskap · kjøkken</span>
+        <span class="cellar-meta">64 plasser · 12 ledige</span>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="cellar-found">
+        <span class="found-dot"></span>
+        <span class="found-txt">
+          <span class="found-name">Lynch-Bages 2010</span>
+          <span class="found-sub">Flaske 3 av 6 · gave fra pappa</span>
+        </span>
+        <span class="found-pos">N4-R2-C5</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="thesis">
+  <div class="shell thesis-grid">
+    <div>
+      <span class="eyebrow">Hvorfor dette er noe annet</span>
+      <p class="thesis-lead" style="margin-top:14px">
+        Vi konkurrerer ikke på lengre lister eller penere 3D. Vi kobler
+        fysisk sannhet til personlig kontekst.
+      </p>
+      <p class="lede" style="margin-top:16px;font-size:.95rem">
+        Vinen i skapet er ikke bare varer. Den er kvelder som skal komme, mennesker
+        du fikk den av, og et løfte om at den ikke blir glemt bakerst på hylla.
+        Tre ting bærer produktet — de skal aldri vannes ut.
+      </p>
+    </div>
+
+    <div class="three">
+      <article class="idea">
+        <svg class="idea-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <g fill="none" stroke="var(--accent)" stroke-width="1.6" opacity=".55">
+            <path d="M20 8 L31 15 M20 8 L9 15 M9 15 L20 22 M31 15 L20 22 M20 22 L20 33 M9 15 L11 29 M31 15 L29 29"/>
+          </g>
+          <g fill="var(--accent)">
+            <circle cx="20" cy="8" r="3"/><circle cx="9" cy="15" r="2.4"/><circle cx="31" cy="15" r="2.4"/>
+            <circle cx="20" cy="22" r="2.4"/><circle cx="20" cy="33" r="2"/><circle cx="11" cy="29" r="2"/><circle cx="29" cy="29" r="2"/>
+          </g>
+        </svg>
+        <div>
+          <h3>Cellar Graph</h3>
+          <p>
+            «Fra pappa» er ikke et notatfelt — det er en kobling. Flasker henger sammen med
+            mennesker, reiser, måltider og anledninger, så samlingen kan svare på spørsmål
+            ingen har laget et skjermbilde for.
+          </p>
+        </div>
+      </article>
+
+      <article class="idea">
+        <svg class="idea-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="9" y="4" width="22" height="32" rx="3" fill="none" stroke="var(--accent)" stroke-width="1.8" opacity=".55"/>
+          <g stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" opacity=".8">
+            <path d="M14 12h12M14 18h12M14 24h7"/>
+          </g>
+          <circle cx="26" cy="27" r="4" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+        </svg>
+        <div>
+          <h3>Bottle Passport</h3>
+          <p>
+            Hver enkelt flaske har sitt eget livsløp: kjøpt, mottatt, plassert, flyttet,
+            reservert, åpnet. Den forsvinner ikke når den drikkes — den flytter fra
+            beholdningen til samlingens historie.
+          </p>
+        </div>
+      </article>
+
+      <article class="idea">
+        <svg class="idea-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <g fill="none" stroke="var(--accent)" stroke-width="1.8" opacity=".55">
+            <rect x="5" y="6" width="12" height="12" rx="2.5"/><rect x="23" y="6" width="12" height="12" rx="2.5"/>
+            <rect x="5" y="22" width="12" height="12" rx="2.5"/>
+          </g>
+          <rect x="23" y="22" width="12" height="12" rx="2.5" fill="var(--accent)" opacity=".22"/>
+          <path d="M25.5 28.5l2.6 2.6 5.4-5.4" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <h3>Zero Administration</h3>
+          <p>
+            Målet er ikke raskere skanning. Målet er at skanningen til slutt blir unødvendig,
+            og at beholdningen holder seg sann fordi det er lettere å ta ut en flaske riktig
+            enn å glemme det.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="flasken">
+  <div class="shell split">
+    <div class="split-copy">
+      <span class="eyebrow">Flasken</span>
+      <h2>Seks like flasker er seks forskjellige historier</h2>
+      <p>
+        De fleste systemer lagrer «Lynch-Bages 2010 × 6». Men den ene var en gave, den andre
+        kjøpte du selv på auksjon i pund, den tredje står reservert til en bestemt middag —
+        og bare én av dem sto i skapet den uka temperaturen løp.
+      </p>
+      <p>
+        Derfor er flasken det bærende objektet hos oss, ikke antallet. Hver flaske har sin
+        egen kostpris, sin egen plass, sin egen eier og sin egen historie.
+      </p>
+      <p style="color:var(--text-body)">
+        <strong>Og noen flasker er ikke eiendeler.</strong> En gave fra pappa har en markedspris,
+        men den er irrelevant. Systemet vet forskjellen, og foreslår aldri at du selger den.
+      </p>
+    </div>
+
+    <div class="panel passport split-media">
+      <div class="pp-head">
+        <span class="pp-label" aria-hidden="true"></span>
+        <div>
+          <div class="pp-id">Flaske 3 av 6 · 750 ml</div>
+          <div class="pp-name">Château Lynch-Bages 2010</div>
+          <div class="pp-tags">
+            <span class="tag accent">Gave — ikke til salgs</span>
+            <span class="tag">Eier: Magnus</span>
+            <span class="tag">N4-R2-C5</span>
+          </div>
+        </div>
+      </div>
+      <ol class="tl">
+        <li>
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">1. APRIL 2018</div>
+            <div class="tl-what"><b>Kjøpt</b> hos Berry Bros — 1&nbsp;199&nbsp;kr</div>
+          </div>
+        </li>
+        <li>
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">24. DESEMBER 2018</div>
+            <div class="tl-what"><b>Mottatt</b> som gave fra pappa</div>
+            <div class="tl-note">«Til noe som er verdt å vente på.»</div>
+          </div>
+        </li>
+        <li>
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">2. JANUAR 2019</div>
+            <div class="tl-what"><b>Plassert</b> i Vinskap kjøkken · Ø2-R1-C3</div>
+          </div>
+        </li>
+        <li>
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">11. AUGUST 2023</div>
+            <div class="tl-what"><b>Flyttet</b> til N4-R2-C5</div>
+            <div class="tl-note">Samlet med de fem andre flaskene.</div>
+          </div>
+        </li>
+        <li>
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">3. JULI 2025</div>
+            <div class="tl-what"><b>Lagringsavvik</b> — 14,4 °C i 38 minutter</div>
+            <div class="tl-note">Kortvarig. Påvirker sikkerheten i drikkevinduet, ikke dommen.</div>
+          </div>
+        </li>
+        <li class="now">
+          <span class="tl-rail"><i></i></span>
+          <div>
+            <div class="tl-when">I DAG</div>
+            <div class="tl-what"><b>I form</b> — drikkevindu 2026–2034</div>
+            <div class="tl-note">Antatt toppfase 2028–2031. Middels sikkerhet.</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="samlingen" class="thesis">
+  <div class="shell">
+    <div class="sec-head">
+      <span class="eyebrow">Samlingen</span>
+      <h2>Ikke en liste. En tilstand.</h2>
+      <p class="lede">
+        Forsiden viser ikke kategorier — den viser hvordan samlingen har det akkurat nå,
+        og hva som fortjener oppmerksomhet før det er for sent.
+      </p>
+    </div>
+
+    <div class="tiles">
+      <div class="panel tile"><span class="n">18</span><span class="l">drikkeklare</span><span class="sub">nå, uten reservasjon</span></div>
+      <div class="panel tile"><span class="n">7</span><span class="l">nærmer seg toppen</span><span class="sub">neste 12 måneder</span></div>
+      <div class="panel tile"><span class="n">3</span><span class="l">bør prioriteres</span><span class="sub">på vei ut av vinduet</span></div>
+      <div class="panel tile"><span class="n">42</span><span class="l">utvikler seg</span><span class="sub">ligger og hviler</span></div>
+      <div class="panel tile"><span class="n">5</span><span class="l">uten sikkert vindu</span><span class="sub">mangler data</span></div>
+      <div class="panel tile"><span class="n">12</span><span class="l">ledige plasser</span><span class="sub">av 64</span></div>
+    </div>
+
+    <div class="dist" role="table" aria-label="Flasker fordelt på modningsfase">
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-fill"></i> Drikkeklar</span>
+        <span class="bar" style="color:var(--status-drikkeklar)" role="cell"><span style="width:24%"></span></span>
+        <span class="dist-val" role="cell">18</span>
+      </div>
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-ring"></i> På topp</span>
+        <span class="bar" style="color:var(--status-paa-topp)" role="cell"><span style="width:9%"></span></span>
+        <span class="dist-val" role="cell">7</span>
+      </div>
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-diamond"></i> Prioriter</span>
+        <span class="bar" style="color:var(--status-prioriter)" role="cell"><span style="width:4%"></span></span>
+        <span class="dist-val" role="cell">3</span>
+      </div>
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-line"></i> På vei</span>
+        <span class="bar" style="color:var(--status-paa-vei)" role="cell"><span style="width:18%"></span></span>
+        <span class="dist-val" role="cell">14</span>
+      </div>
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-hollow"></i> Hviler</span>
+        <span class="bar" style="color:var(--status-hviler)" role="cell"><span style="width:37%"></span></span>
+        <span class="dist-val" role="cell">28</span>
+      </div>
+      <div class="dist-row" role="row">
+        <span class="dist-name" role="rowheader"><i class="mk mk-dot"></i> Usikker</span>
+        <span class="bar" style="color:var(--status-usikker)" role="cell"><span style="width:7%"></span></span>
+        <span class="dist-val" role="cell">5</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shell">
+    <div class="sec-head">
+      <span class="eyebrow">I kveld</span>
+      <h2>«Hva åpner vi?» — tre svar fra ditt eget skap</h2>
+      <p class="lede">
+        Du sier hva dere spiser, hvem som kommer og hvor lang tid dere har. Tre forslag,
+        hver med en begrunnelse du kan være uenig i — og hvor flasken fysisk ligger.
+      </p>
+    </div>
+    <div class="picks">
+      <article class="panel pick">
+        <span class="pick-kind">Det trygge valget</span>
+        <h3>Chianti Classico 2019</h3>
+        <p class="why">
+          Passer lammeskanken, og dere har to flasker igjen. Ingen reservasjon, ingen risiko —
+          den er der den skal være akkurat nå.
+        </p>
+        <div class="pick-foot"><span>Ø1-R3-C2</span><span>16–18 °C</span><span>30 min i karaffel</span></div>
+      </article>
+      <article class="panel pick">
+        <span class="pick-kind">Det interessante valget</span>
+        <h3>Barolo Riserva 2016</h3>
+        <p class="why">
+          Thomas kommer, og han ga toppkarakter til den forrige flasken fra samme produsent.
+          Krever tid: åpne den først.
+        </p>
+        <div class="pick-foot"><span>N2-R1-C7</span><span>Eier: felles</span><span>2 t lufting</span></div>
+      </article>
+      <article class="panel pick">
+        <span class="pick-kind">Smart å åpne nå</span>
+        <h3>Meursault 2017</h3>
+        <p class="why">
+          På vei ut av vinduet sitt de neste månedene. Åpner dere den i kveld, treffer dere den
+          fortsatt godt.
+        </p>
+        <div class="pick-foot"><span>K1-R2-C4</span><span>11–13 °C</span><span>Middels sikkerhet</span></div>
+      </article>
+    </div>
+    <p class="lede" style="margin-top:22px;font-size:.9rem">
+      Forslagene kommer alltid fra flasker du allerede eier, og de respekterer eierskap og
+      reservasjoner. Ingen betalt plassering, ingen kjøpsforslag.
+    </p>
+  </div>
+</section>
+
+<section id="verdien" class="thesis">
+  <div class="shell">
+    <div class="sec-head">
+      <span class="eyebrow">Verdien</span>
+      <h2>En samling er en portefølje — og å drikke en flaske er utbyttet</h2>
+      <p class="lede">
+        Kapital bundet i eiendeler med en verdi som beveger seg. Forskjellen fra aksjer:
+        flasker er ikke like. Hver av dem har sin egen kostpris og sin egen historie, så
+        regnskapet blir eksakt i stedet for et gjennomsnitt.
+      </p>
+    </div>
+
+    <div class="pf">
+      <div class="panel pf-main">
+        <div class="pf-fig">
+          <span class="big">286&nbsp;400&nbsp;kr</span>
+          <span class="cap">Estimert verdi · 75 flasker</span>
+        </div>
+        <div class="pf-split">
+          <div class="pf-small"><div class="v">184&nbsp;200&nbsp;kr</div><div class="k">Kostpris</div></div>
+          <div class="pf-small"><div class="v">+55,5&nbsp;%</div><div class="k">Urealisert</div></div>
+          <div class="pf-small"><div class="v">61&nbsp;%</div><div class="k">Tre produsenter</div></div>
+        </div>
+      </div>
+
+      <div class="panel yield">
+        <span class="eyebrow">Drikkeutbytte · 12 måneder</span>
+        <span class="big">11&nbsp;700&nbsp;kr</span>
+        <p>
+          4,1&nbsp;% av porteføljen, levert i glass. En flaske du drakk da den var verdt
+          2&nbsp;400&nbsp;kr har <em>utbetalt</em> 2&nbsp;400&nbsp;kr — den er ikke tapt.
+        </p>
+      </div>
+
+      <div class="panel alloc">
+        <span class="eyebrow">Fordeling</span>
+        <div class="alloc-bar" aria-hidden="true">
+          <span style="flex:38;background:var(--messing)"></span>
+          <span style="flex:21;background:color-mix(in srgb,var(--messing) 78%,var(--surface-card))"></span>
+          <span style="flex:14;background:color-mix(in srgb,var(--messing) 58%,var(--surface-card))"></span>
+          <span style="flex:9;background:color-mix(in srgb,var(--messing) 42%,var(--surface-card))"></span>
+          <span style="flex:8;background:color-mix(in srgb,var(--messing) 30%,var(--surface-card))"></span>
+          <span style="flex:10;background:color-mix(in srgb,var(--messing) 18%,var(--surface-card))"></span>
+        </div>
+        <div class="alloc-key">
+          <div><i style="background:var(--messing)"></i>Bordeaux <b>38 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 78%,var(--surface-card))"></i>Burgund <b>21 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 58%,var(--surface-card))"></i>Piemonte <b>14 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 42%,var(--surface-card))"></i>Rhône <b>9 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 30%,var(--surface-card))"></i>Champagne <b>8 %</b></div>
+          <div><i style="background:color-mix(in srgb,var(--messing) 18%,var(--surface-card))"></i>Annet <b>10 %</b></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-top:20px;font-size:.9rem">
+      Uten utbyttelinjen ville hver åpnede flaske sett ut som et tap — og da hadde vi bygget
+      noe som gjør folk redde for å drikke vinen sin. Tallet er beskrivende, aldri et mål:
+      ingen streaks, ingen sammenligning, og det kan skrus av.
+    </p>
+  </div>
+</section>
+
+<section id="skapet">
+  <div class="shell split rev">
+    <div class="split-copy">
+      <span class="eyebrow">Skapet</span>
+      <h2>Klimaet forteller hvor sikre vi kan være</h2>
+      <p>
+        Temperatur og fuktighet er ikke en dom over vinen. De er grunnlaget for hvor mye vi
+        tør å påstå om drikkevinduet. En kortvarig topp mens døra sto åpen er ikke et avvik —
+        det er en dør.
+      </p>
+      <p>
+        Varsler krever både terskel og varighet, og de sier hva som skjedde og hva det betyr.
+        Ingen automatisk konklusjon om at en vin er ødelagt.
+      </p>
+    </div>
+
+    <div class="panel climate split-media">
+      <div class="cl-state">
+        <span class="cl-badge">Stabilt</span>
+        <span class="cl-line">Siste 30 dager · snitt 12,1 °C</span>
+      </div>
+      <div class="spark" aria-hidden="true">
+        <i style="height:41%"></i><i style="height:44%"></i><i style="height:43%"></i><i style="height:46%"></i>
+        <i style="height:45%"></i><i style="height:42%"></i><i style="height:47%"></i><i style="height:44%"></i>
+        <i style="height:49%"></i><i style="height:46%"></i><i style="height:45%"></i><i style="height:48%"></i>
+        <i style="height:44%"></i><i style="height:43%"></i><i style="height:47%"></i><i style="height:52%"></i>
+        <i style="height:78%" class="hot"></i><i style="height:51%"></i><i style="height:46%"></i><i style="height:44%"></i>
+        <i style="height:45%"></i><i style="height:47%"></i><i style="height:43%"></i><i style="height:46%"></i>
+        <i style="height:44%"></i><i style="height:45%"></i><i style="height:48%"></i><i style="height:44%"></i>
+        <i style="height:46%"></i><i style="height:45%"></i>
+      </div>
+      <div class="cl-scale"><span>1. juli</span><span>Største avvik: 14,4 °C i 38 min</span><span>I dag</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="thesis">
+  <div class="shell">
+    <div class="sec-head">
+      <span class="eyebrow">Zero Administration</span>
+      <h2>Hvert trinn fjerner arbeid, ikke legger til felter</h2>
+      <p class="lede">
+        Beholdningen slutter å stemme i det registrering føles som arbeid. Derfor er veien
+        videre målt i hvor lite du må gjøre — ikke i hvor mange funksjoner vi har.
+      </p>
+    </div>
+    <div class="ladder">
+      <div class="rung"><span class="rung-n">Nivå 0</span><span class="rung-t">Manuelt</span><span class="rung-d">Du registrerer alt selv. Fungerer, men bare så lenge du orker.</span></div>
+      <div class="rung here"><span class="rung-n">Nivå 1</span><span class="rung-t">Skanning</span><span class="rung-d">Etiketten gjenkjennes, plassen foreslås. Under 15 sekunder for en kjent vin.</span></div>
+      <div class="rung"><span class="rung-n">Nivå 2</span><span class="rung-t">Merket</span><span class="rung-d">QR eller NFC identifiserer den fysiske flasken og hylla.</span></div>
+      <div class="rung"><span class="rung-n">Nivå 3</span><span class="rung-t">Smart hylle</span><span class="rung-d">Skapet merker selv hvilken plass som blir ledig eller fylt.</span></div>
+      <div class="rung"><span class="rung-n">Nivå 4</span><span class="rung-t">Kamera</span><span class="rung-d">Systemet forstår flaskebevegelsene i skapet.</span></div>
+      <div class="rung"><span class="rung-n">Nivå 5</span><span class="rung-t">Sammenstilling</span><span class="rung-d">Kamera, hyllesensor, merke og dørstatus sammen: «flasken forlot A24 kl. 19.42».</span></div>
+      <div class="rung"><span class="rung-n">Nivå 6</span><span class="rung-t">Usynlig</span><span class="rung-d">Du tar en flaske. Alt annet skjer av seg selv — og du blir bare spurt når det er tvil.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="produsenter" class="oem">
+  <div class="shell oem-grid">
+    <div class="split-copy">
+      <span class="eyebrow">For vinskapsprodusenter</span>
+      <h2>Den digitale opplevelsen et moderne vinskap mangler</h2>
+      <p>
+        CellarOS er plattformen bak Vinskapet: domenemotor, skapmodell, modning, rettigheter
+        og et adapterlag som snakker med sensorer, lys og skapelektronikk. Kjernen kjenner
+        ikke produsentspesifikke protokoller — hver produsent får sin egen adapter.
+      </p>
+      <div class="oem-list">
+        <div><b>Co-brand før white-label.</b> «Powered by CellarOS» gir sterkere plattform og lavere vedlikehold.</div>
+        <div><b>Egen logo, skapmal og funksjonsnivå</b> uten å forgrene kodebasen.</div>
+        <div><b>Fungerer offline.</b> Skjermen ved skapet blir ikke ubrukelig fordi en skytjeneste er nede.</div>
+        <div><b>Referansehardware finnes allerede.</b> Nettbrett i kioskmodus og en standard klimasensor.</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div class="oem-badge">
+        <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true">
+          <g fill="none" stroke="var(--logo-ink)" stroke-width="2" opacity="0.5">
+            <rect x="1" y="1" width="10" height="10" rx="2.5"/><rect x="15" y="1" width="10" height="10" rx="2.5"/><rect x="29" y="1" width="10" height="10" rx="2.5"/>
+            <rect x="1" y="15" width="10" height="10" rx="2.5"/><rect x="29" y="15" width="10" height="10" rx="2.5"/>
+            <rect x="1" y="29" width="10" height="10" rx="2.5"/><rect x="15" y="29" width="10" height="10" rx="2.5"/><rect x="29" y="29" width="10" height="10" rx="2.5"/>
+          </g>
+          <rect x="15" y="15" width="10" height="10" rx="2.5" fill="var(--messing)"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span>Powered by</span>
+          <div style="font-family:var(--serif);font-size:1.5rem;line-height:1.1">CellarOS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="founders">
+  <div class="shell close">
+    <span class="eyebrow">Founders Cellars</span>
+    <h2>Vi leter etter de første 50 skapene</h2>
+    <p class="lede">
+      Har du mellom 30 og 300 flasker og et skap du er glad i, vil vi gjerne bygge dette
+      sammen med deg. Ingen kostnad, ingen forpliktelse — vi trenger ekte skap, ekte rot og
+      ærlige tilbakemeldinger.
+    </p>
+    <a class="btn btn-primary" href="#founders">Meld interesse</a>
+    <p class="hero-note">Vi tar kontakt før noe lanseres. Dataene dine er dine, og kan eksporteres når som helst.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="shell foot-in">
+    <div class="foot-legal">
+      <p>
+        <strong>Vinskapet</strong> er et inventar-, lagrings- og kunnskapsverktøy for vin du
+        allerede eier. Tjenesten selger ikke alkohol, formidler ikke salg og inneholder ingen
+        sponsede eller produsentbetalte anbefalinger.
+      </p>
+      <p>
+        Produktdata kan hentes fra Vinmonopolets åpne API etter deres vilkår. Vinskapet er
+        ikke tilknyttet, godkjent av eller i samarbeid med Vinmonopolet.
+      </p>
+      <p>
+        Verdianslag er estimater med oppgitt kilde og dato, og er ikke investeringsrådgivning.
+        Alle flasker, tall og skjermbilder på denne siden er eksempler.
+      </p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+      <span class="wm" style="opacity:.7"><span class="wm-s">VIN</span><span class="wm-n">skapet</span></span>
+      <span style="font-size:.75rem;letter-spacing:.13em;text-transform:uppercase">Powered by CellarOS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Skapgrid: 8 × 8 plasser. Fylte, ledige — og én opplyst.
+  var grid = document.getElementById('grid');
+  if (grid) {
+    var FREE = [5,12,19,26,33,40,47,54,61,6,13,20];
+    var lit = [];
+    for (var i = 0; i < 64; i++) {
+      var s = document.createElement('span');
+      s.className = 'slot ' + (FREE.indexOf(i) > -1 ? 'free' : 'full');
+      grid.appendChild(s);
+      if (FREE.indexOf(i) === -1) lit.push(s);
+    }
+    var current = lit[27];
+    if (current) current.classList.add('lit');
+
+    // Den vandrende ruta er den eneste tillatte animasjonen i merkevaren.
+    var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!calm.matches) {
+      setInterval(function(){
+        if (document.hidden) return;
+        var next = lit[Math.floor(Math.random() * lit.length)];
+        if (next === current) return;
+        if (current) current.classList.remove('lit');
+        next.classList.add('lit');
+        current = next;
+      }, 5200);
+    }
+  }
+
+  // Lys/mørk visning. Følger systemet til brukeren velger selv.
+  var btn = document.getElementById('theme');
+  if (btn) {
+    var root = document.documentElement;
+    var label = function(){
+      var darkNow = root.dataset.theme
+        ? root.dataset.theme === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      btn.textContent = darkNow ? 'Lys visning' : 'Mørk visning';
+    };
+    label();
+    btn.addEventListener('click', function(){
+      var darkNow = root.dataset.theme
+        ? root.dataset.theme === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.dataset.theme = darkNow ? 'light' : 'dark';
+      label();
+    });
+  }
+})();
+</script>
+</body>
+</html>
